@@ -91,57 +91,88 @@ Vue.component('user-table', {
         },
         nextPage: function() {
             if (this.curPage + 1 < Math.ceil(this.data.length / this.perPage)) {
-                this.pages.push(this.data.slice(i * this.perPage, (i + 1) * this.perPage));
+
                 this.curPage++;
                 this.lastSortColum = -1;
+                this.pages[this.curPage - 1] = this.data.slice((this.curPage - 1) * this.perPage, (this.curPage) * this.perPage);
             }
 
         },
         prevPage: function() {
             if (this.curPage - 1 >= 0) {
-                this.pages.push(this.data.slice(i * this.perPage, (i + 1) * this.perPage));
+
                 this.curPage--;
                 this.lastSortColum = -1;
+                this.pages[this.curPage + 1] = this.data.slice((this.curPage + 1) * this.perPage, (this.curPage + 2) * this.perPage);
+
 
             }
         },
         firstPage: function() {
-            this.pages.push(this.data.slice(i * this.perPage, (i + 1) * this.perPage));
+            let i = this.curPage;
             this.curPage = 0;
             this.lastSortColum = -1;
+            this.pages[i] = this.data.slice(i * this.perPage, (i + 1) * this.perPage);
+
 
         },
         lastPage: function() {
-            this.pages.push(this.data.slice(i * this.perPage, (i + 1) * this.perPage));
+            let i = this.curPage;
+
             this.curPage = Math.ceil(this.data.length / this.perPage) - 1;
+            this.pages[i] = this.data.slice(i * this.perPage, (i + 1) * this.perPage);
+
             this.lastSortColum = -1;
 
         },
         filterPage: function() {
             //Дописать фильтр И условия возможно придется переписать
-            var new_page = [];
-            var old_page = this.data.slice(this.curPage * this.perPage, (this.curPage + 1) * this.perPage);
-            for (let i = 0; i < this.filter.length; i++) {
-                if (this.filter[i] == "") {
-                    continue;
-                } else {
 
-                    for (let j = 0; j < old_page.length; j++) {
+            if (this.filter.join("") == "") {
 
-                        if ((old_page[j][i + 1].toLowerCase().indexOf(this.filter[i].toLowerCase()) != -1) && (!new_page.includes(old_page[j]))) {
-                            new_page.push(old_page[j]);
+                this.pages[this.curPage] = this.data.slice(this.curPage * this.perPage, (this.curPage + 1) * this.perPage);
+            } else {
+                var new_page = [];
+                var old_page = this.data.slice(this.curPage * this.perPage, (this.curPage + 1) * this.perPage);
+                for (let i = 0; i < this.filter.length; i++) {
+                    if (this.filter[i] == "") {
+                        continue;
+                    } else {
+                        var filter_page = [];
+                        for (let j = 0; j < old_page.length; j++) {
+
+                            if ((old_page[j][i + 1].toLowerCase().indexOf(this.filter[i].toLowerCase()) != -1) && (!filter_page.includes(old_page[j]))) {
+                                filter_page.push(old_page[j]);
+                            }
+                        }
+                        if (filter_page.length == 0) {
+                            new_page = [];
+                            break;
+                        } else {
+                            if (this.filter.slice(0, i).join("") == "") {
+                                new_page = filter_page;
+                            } else {
+                                var update = [];
+                                for (let j = 0; j < filter_page.length; j++) {
+                                    if (new_page.includes(filter_page[j])) {
+                                        update.push(filter_page[j]);
+                                    }
+                                }
+                                new_page = update;
+                            }
                         }
                     }
+
                 }
 
+                if (new_page.length != 0) {
+                    this.pages[this.curPage] = new_page;
+                } else {
+                    this.pages[this.curPage] = [];
+                }
             }
 
-            if (new_page.length != 0) {
-                this.pages[this.curPage] = new_page;
 
-            } else {
-                this.pages[this.curPage] = this.data.slice(this.curPage * this.perPage, (this.curPage + 1) * this.perPage);
-            }
 
             this.$forceUpdate();
 
