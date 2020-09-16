@@ -129,7 +129,6 @@ Vue.component('user-table', {
             //Дописать фильтр И условия возможно придется переписать
 
             if (this.filter.join("") == "") {
-
                 this.pages[this.curPage] = this.data.slice(this.curPage * this.perPage, (this.curPage + 1) * this.perPage);
             } else {
                 var new_page = [];
@@ -140,7 +139,6 @@ Vue.component('user-table', {
                     } else {
                         var filter_page = [];
                         for (let j = 0; j < old_page.length; j++) {
-
                             if ((old_page[j][i + 1].toLowerCase().indexOf(this.filter[i].toLowerCase()) != -1) && (!filter_page.includes(old_page[j]))) {
                                 filter_page.push(old_page[j]);
                             }
